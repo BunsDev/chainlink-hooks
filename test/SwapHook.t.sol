@@ -32,13 +32,13 @@ contract SwapHookTest is Test, Fixtures {
     PositionConfig config;
 
     function setUp() public {
-        // creates the pool manager, utility routers, and test tokens
+        // creates: pool manager, utility routers, and test tokens
         deployFreshManagerAndRouters();
         deployMintAndApprove2Currencies();
 
         deployAndApprovePosm(manager);
 
-        // Deploy the hook to an address with the correct flags
+        // deploys: hook to an address with the correct flags
         address flags = address(
             uint160(
                 Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG | Hooks.BEFORE_ADD_LIQUIDITY_FLAG
@@ -49,12 +49,12 @@ contract SwapHookTest is Test, Fixtures {
         deployCodeTo("SwapHook.sol:SwapHook", constructorArgs, flags);
         hook = SwapHook(flags);
 
-        // Create the pool
+        // creates: pool
         key = PoolKey(currency0, currency1, 3000, 60, IHooks(hook));
         poolId = key.toId();
         manager.initialize(key, SQRT_PRICE_1_1, ZERO_BYTES);
 
-        // Provide full-range liquidity to the pool
+        // provides: full-range liquidity to the pool
         config = PositionConfig({
             poolKey: key,
             tickLower: TickMath.minUsableTick(key.tickSpacing),
