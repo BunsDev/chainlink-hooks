@@ -76,10 +76,10 @@ contract ExampleHookTest is Test, Deployers {
 
         console2.log("--- STARTING BALANCES ---");
 
-        console2.log("User balance in currency0 before swapping: ", userBalanceBefore0);
-        console2.log("User balance in currency1 before swapping: ", userBalanceBefore1);
-        console2.log("Hook balance in currency0 before swapping: ", hookBalanceBefore0);
-        console2.log("Hook balance in currency1 before swapping: ", hookBalanceBefore1);
+        console2.log("currency0[0] (user):", fromWei(userBalanceBefore0));
+        console2.log("currency0[0] (hooks):", fromWei(hookBalanceBefore0));
+        console2.log("currency1[0] (user):", fromWei(userBalanceBefore1));
+        console2.log("currency1[0] (hooks):", fromWei(hookBalanceBefore1));
 
         vm.prank(user);
         swapRouter.swap(key, params, _defaultTestSettings(), ZERO_BYTES);
@@ -92,10 +92,10 @@ contract ExampleHookTest is Test, Deployers {
 
         console2.log("--- ENDING BALANCES ---");
 
-        console2.log("User balance in currency0 after swapping: ", userBalanceAfter0);
-        console2.log("User balance in currency1 after swapping: ", userBalanceAfter1);
-        console2.log("Hook balance in currency0 after swapping: ", hookBalanceAfter0);
-        console2.log("Hook balance in currency1 after swapping: ", hookBalanceAfter1);
+        console2.log("currency0[1] (user): ", fromWei(userBalanceAfter0));
+        console2.log("currency0[1] (hooks): ", fromWei(hookBalanceAfter0));
+        console2.log("currency1[1] (user): ", fromWei(userBalanceAfter1));
+        console2.log("currency1[1] (hooks): ", fromWei(hookBalanceAfter1));
 
         if (zeroForOne) {
             assertEq(userBalanceAfter0, userBalanceBefore0 - amountToSwap, "amount 0");
@@ -151,5 +151,9 @@ contract ExampleHookTest is Test, Deployers {
             vm.prank(_user);
             MockERC20(token).approve(toApprove[i], Constants.MAX_UINT256);
         }
+    }
+
+    function fromWei(uint amount) internal pure returns (uint) {
+        return amount / 1e18;
     }
 }
