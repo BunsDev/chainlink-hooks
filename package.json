@@ -1,0 +1,15 @@
+{
+  "name": "chainlink-hooks",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/BunsDev/chainlink-hooks.git",
+  "author": "Buns <bunsthedev@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vvv"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^1.2.0"
+  }
+}
