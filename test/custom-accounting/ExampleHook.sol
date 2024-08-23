@@ -35,13 +35,12 @@ contract ExampleHook is BaseTestHooks {
     ) external override onlyPoolManager returns (bytes4, BeforeSwapDelta, uint24) {
         (Currency inputCurrency, Currency outputCurrency, uint256 amount) = _getInputOutputAndAmount(key, params);
 
-        // this "custom curve" is a line, 1-1
-        // take the full input amount, and give the full output amount
+        // custom curve: 1 inputToken = 1 outputToken (1:1)
         manager.take(inputCurrency, address(this), amount);
 
         outputCurrency.settle(manager, address(this), amount, false);
 
-        // return -amountSpecified as specified to no-op the concentrated liquidity swap
+        // return: -amountSpecified as specified to no-op the concentrated liquidity swap.
         BeforeSwapDelta hookDelta = toBeforeSwapDelta(int128(-params.amountSpecified), int128(params.amountSpecified));
         return (IHooks.beforeSwap.selector, hookDelta, 0);
     }

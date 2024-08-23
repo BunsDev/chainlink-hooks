@@ -11,7 +11,7 @@ import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
 import {PoolId, PoolIdLibrary} from "v4-core/src/types/PoolId.sol";
 import {CurrencyLibrary, Currency} from "v4-core/src/types/Currency.sol";
 import {PoolSwapTest} from "v4-core/src/test/PoolSwapTest.sol";
-import {Counter} from "../src/Counter.sol";
+import {SwapHook} from "../src/SwapHook.sol";
 import {StateLibrary} from "v4-core/src/libraries/StateLibrary.sol";
 import {PositionConfig} from "v4-periphery/src/libraries/PositionConfig.sol";
 
@@ -19,13 +19,13 @@ import {IPositionManager} from "v4-periphery/src/interfaces/IPositionManager.sol
 import {EasyPosm} from "./utils/EasyPosm.sol";
 import {Fixtures} from "./utils/Fixtures.sol";
 
-contract CounterTest is Test, Fixtures {
+contract SwapHookTest is Test, Fixtures {
     using EasyPosm for IPositionManager;
     using PoolIdLibrary for PoolKey;
     using CurrencyLibrary for Currency;
     using StateLibrary for IPoolManager;
 
-    Counter hook;
+    SwapHook hook;
     PoolId poolId;
 
     uint256 tokenId;
@@ -46,8 +46,8 @@ contract CounterTest is Test, Fixtures {
             ) ^ (0x4444 << 144) // Namespace the hook to avoid collisions
         );
         bytes memory constructorArgs = abi.encode(manager); //Add all the necessary constructor arguments from the hook
-        deployCodeTo("Counter.sol:Counter", constructorArgs, flags);
-        hook = Counter(flags);
+        deployCodeTo("SwapHook.sol:SwapHook", constructorArgs, flags);
+        hook = SwapHook(flags);
 
         // Create the pool
         key = PoolKey(currency0, currency1, 3000, 60, IHooks(hook));
@@ -71,7 +71,7 @@ contract CounterTest is Test, Fixtures {
         );
     }
 
-    function testCounterHooks() public {
+    function testSwapHookHooks() public {
         // positions were created in setup()
         assertEq(hook.beforeAddLiquidityCount(poolId), 1);
         assertEq(hook.beforeRemoveLiquidityCount(poolId), 0);
