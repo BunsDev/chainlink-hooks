@@ -7,3 +7,9 @@
 [submodule "lib/v4-core"]
 	path = lib/v4-core
 	url = https://github.com/uniswap/v4-core
+[submodule "lib/chainlink"]
+	path = lib/chainlink
+	url = https://github.com/lib/chainlink
+[submodule "lib/chainlink-brownie-contracts"]
+	path = lib/chainlink-brownie-contracts
+	url = https://github.com/lib/chainlink-brownie-contracts

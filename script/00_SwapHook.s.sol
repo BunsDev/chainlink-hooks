@@ -30,7 +30,7 @@ contract SwapHookScript is Script {
 
         // Deploy the hook using CREATE2
         vm.broadcast();
-        SwapHook SwapHook = new SwapHook{salt: salt}(IPoolManager(address(GOERLI_POOLMANAGER)));
-        require(address(SwapHook) == hookAddress, "SwapHookScript: hook address mismatch");
+        SwapHook swapHook = new SwapHook{salt: salt}(IPoolManager(address(GOERLI_POOLMANAGER)));
+        require(address(swapHook) == hookAddress, "SwapHookScript: hook address mismatch");
     }
 }
