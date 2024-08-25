@@ -10,36 +10,36 @@ import {PoolId, PoolIdLibrary} from "v4-core/src/types/PoolId.sol";
 import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {LPFeeLibrary} from "v4-core/src/libraries/LPFeeLibrary.sol";
+import {FunctionsConsumer} from "./FunctionsConsumer.sol";
 
-/// @notice A time-decaying dynamically fee, updated automatically with beforeSwap()
+/// @notice A dynamic fee, updated automatically with beforeSwap() using Chainlink FunctionsConsumer
 contract DynamicFeeOverride is BaseHook {
     uint256 public immutable startTimestamp;
 
-    // Start at 5% fee, decaying at rate of 0.00001% per second
-    // after 495,000 seconds (5.72 days), fee will be a minimum of 0.05%
+    // Start at 5% fee, with a minimum of 0.05%
     // NOTE: because fees are uint24, we will lose some precision
     uint128 public constant START_FEE = 500_000; // represents 5%
     uint128 public constant MIN_FEE = 500; // minimum fee of 0.05%
 
-    uint128 public constant decayRate = 1; // 0.00001% per second
+    FunctionsConsumer functionsConsumer;
 
-    constructor(IPoolManager _poolManager) BaseHook(_poolManager) {
+    constructor(IPoolManager _poolManager, address _consumerAddress) BaseHook(_poolManager) {
         startTimestamp = block.timestamp;
+        functionsConsumer = FunctionsConsumer(_consumerAddress);
     }
 
+    // synchronous example of using stored variable for updating swap fee.
     function beforeSwap(address, PoolKey calldata, IPoolManager.SwapParams calldata, bytes calldata)
         external
         override
         view
         returns (bytes4, BeforeSwapDelta, uint24)
     {
-        // Linearly decaying fee, y = mx + b
-        // After 495,000 seconds (5.72 days), fee will be a minimum of 0.05%
         uint256 _currentFee;
         unchecked {
-            uint256 timeElapsed = block.timestamp - startTimestamp;
-            _currentFee =
-                timeElapsed > 495000 ? uint256(MIN_FEE) : (uint256(START_FEE) - (timeElapsed * decayRate)) / 10;
+            // gets: lastResponse as new fee.
+            uint256 fee = stringToUint(functionsConsumer.fee());
+            _currentFee = fee > MIN_FEE ? fee : MIN_FEE;
         }
 
         // to override the LP fee, its 2nd bit must be set for the override to apply
@@ -74,5 +74,17 @@ contract DynamicFeeOverride is BaseHook {
             afterAddLiquidityReturnDelta: false,
             afterRemoveLiquidityReturnDelta: false
         });
+    }
+
+    function stringToUint(string memory s) public pure returns (uint) {
+        bytes memory b = bytes(s);
+        uint result = 0;
+        for (uint256 i = 0; i < b.length; i++) {
+            uint256 c = uint256(uint8(b[i]));
+            if (c >= 48 && c <= 57) {
+                result = result * 10 + (c - 48);
+            }
+        }
+        return result;
     }
 }
