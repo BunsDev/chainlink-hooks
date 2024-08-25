@@ -29,24 +29,24 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     // Event to log responses
     event Response(
         bytes32 indexed requestId,
-        string character,
+        string fee,
         bytes response,
         bytes err
     );
 
     // JavaScript source code
-    // Fetch character name from the Star Wars API.
-    // Documentation: https://swapi.info/people
+    // Fetch fee from a Random Number API
+    // Documentation: https:/api.dummy.wiki
+
     string public source =
-        "const characterId = args[0];"
         "const apiResponse = await Functions.makeHttpRequest({"
-        "url: `https://swapi.info/api/people/${characterId}/`"
+        "url: `https://api.dummy.wiki/numbers/limit=100`"
         "});"
         "if (apiResponse.error) {"
         "throw Error('Request failed');"
         "}"
-        "const { data } = apiResponse;"
-        "return Functions.encodeString(data.name);";
+        "const randomNumber = apiResponse.data.randomNumber.toString();"
+        "return Functions.encodeString(randomNumber);";
 
     // Callback gas limit
     uint32 public gasLimit = 300_000;
@@ -54,8 +54,8 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     // Check to get the donID for your supported network https://docs.chain.link/chainlink-functions/supported-networks
     bytes32 public donID;
 
-    // State variable to store the returned character information
-    string public character;
+    // State variable to store the returned fee information
+    string public fee;
 
     /**
      * @notice Initializes the contract with the Chainlink router address and sets the contract owner
@@ -65,7 +65,7 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
     }
 
     /**
-     * @notice Sends an HTTP request for character information
+     * @notice Sends an HTTP request for fee information
      * @param subscriptionId The ID for the Chainlink subscription
      * @param args The arguments to pass to the HTTP request
      * @return requestId The ID of the request
@@ -105,18 +105,10 @@ contract FunctionsConsumer is FunctionsClient, ConfirmedOwner {
         }
         // Update the contract's state variables with the response and any errors
         s_lastResponse = response;
-        character = string(response);
+        fee = string(response);
         s_lastError = err;
 
         // Emit an event to log the response
-        emit Response(requestId, character, s_lastResponse, s_lastError);
-    }
-
-    /**
-     * @notice Sets the donID for the contract (restricted to owner)
-     * @param _donID The updated donID
-    */
-    function setDonId(bytes32 _donID) external onlyOwner {
-        donID = _donID;
+        emit Response(requestId, fee, s_lastResponse, s_lastError);
     }
 }
