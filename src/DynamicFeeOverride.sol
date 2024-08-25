@@ -18,7 +18,7 @@ contract DynamicFeeOverride is BaseHook {
     // Start at 5% fee, decaying at rate of 0.00001% per second
     // after 495,000 seconds (5.72 days), fee will be a minimum of 0.05%
     // NOTE: because fees are uint24, we will lose some precision
-    uint128 public constant START_FEE = 500000; // represents 5%
+    uint128 public constant START_FEE = 500_000; // represents 5%
     uint128 public constant MIN_FEE = 500; // minimum fee of 0.05%
 
     uint128 public constant decayRate = 1; // 0.00001% per second
@@ -30,6 +30,7 @@ contract DynamicFeeOverride is BaseHook {
     function beforeSwap(address, PoolKey calldata, IPoolManager.SwapParams calldata, bytes calldata)
         external
         override
+        view
         returns (bytes4, BeforeSwapDelta, uint24)
     {
         // Linearly decaying fee, y = mx + b
